@@ -12,7 +12,7 @@ func InitWebRouters(router *gin.Engine) {
 	// index
 	homeRouter := router.Group("")
 	{
-		homeRouter.GET("/", handlers.Index)
+		homeRouter.GET("/", handlers.IndexPage)
 	}
 
 	// 用户组
