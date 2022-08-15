@@ -6,19 +6,17 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Init() {
-	viper.SetConfigName("config/app")
+func LoadYumlConfig(path string) {
+	viper.SetConfigName(path)
 	viper.AddConfigPath(".")
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(err)
 	}
-
-	modifyUlimit()
 }
 
-func modifyUlimit() {
+func IncreaseUlimit() {
 	// Increase resources limitations
 	var rLimit syscall.Rlimit
 	if err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit); err != nil {

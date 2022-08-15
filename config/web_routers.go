@@ -1,7 +1,7 @@
 package config
 
 import (
-	"go-live-chat/server/handlers"
+	handlers "go-live-chat/internal/webhandler"
 
 	"github.com/gin-gonic/gin"
 )

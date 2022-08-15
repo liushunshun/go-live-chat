@@ -1,7 +1,10 @@
-websocket:
-    port: 65001
-    url: /ws
-pprof:
-    port: 6060
-http:
-    port: 8080
+app:
+    websocket:
+        port: 65001
+        url: /ws
+    pprof:
+        port: 6060
+    http:
+        port: 8080
+redis:
+    port: 6037

@@ -8,7 +8,7 @@ package server
 
 import (
 	"fmt"
-	"go-live-chat/common/helper"
+	"go-live-chat/internal/helper"
 	"net"
 	"net/http"
 
@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-func StartWebSocketServer() {
-	port := viper.GetInt("websocket.port")
-	http.HandleFunc(viper.GetString("websocket.url"), handler)
+func StartWebSocketService() {
+	port := viper.GetInt("app.websocket.port")
+	http.HandleFunc(viper.GetString("app.websocket.url"), handler)
 	address := fmt.Sprint(helper.GetServerIp(), ":", port)
 	http.ListenAndServe(address, nil)
 }
