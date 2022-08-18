@@ -2,10 +2,9 @@ package server
 
 import (
 	"fmt"
+	"go-live-chat/internal/helper"
 	"net/http"
 	_ "net/http/pprof"
-
-	"go-live-chat/internal/helper"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
