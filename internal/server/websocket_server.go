@@ -43,8 +43,8 @@ func onWebsocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func StartWebSocketService() {
-	rsaCertPEM := helper.ReadBytes("../../config/cer.pem")
-	rsaKeyPEM := helper.ReadBytes("../../config/privatekey.pem")
+	rsaCertPEM := helper.ReadBytes("config/cer.pem")
+	rsaKeyPEM := helper.ReadBytes("config/privatekey.pem")
 	cert, err := tls.X509KeyPair(rsaCertPEM, rsaKeyPEM)
 	if err != nil {
 		log.Fatalf("tls.X509KeyPair failed: %v", err)
