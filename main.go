@@ -7,7 +7,7 @@ import (
 	"go-live-chat/internal/helper"
 	"go-live-chat/internal/server"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/lesismal/nbio/logging"
 	"github.com/spf13/viper"
 )
 

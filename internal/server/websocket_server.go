@@ -6,26 +6,39 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/lesismal/llib/std/crypto/tls"
+	log "github.com/lesismal/nbio/logging"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/lesismal/nbio/nbhttp/websocket"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-var (
-	qps   uint64 = 0
-	total uint64 = 0
+type UserConn struct {
+	PushedMaxSeq uint64
+	userId       string
+}
 
+var (
+	qps    uint64 = 0
+	total  uint64 = 0
+	rwLock *sync.RWMutex
 	server *nbhttp.Server
+
+	connUserMap map[*websocket.Conn]*UserConn
 )
 
 func newUpgrader() *websocket.Upgrader {
+
 	u := websocket.NewUpgrader()
 	u.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
+		rwLock.Lock()
+		defer rwLock.Unlock()
+		userConn := connUserMap[c]
+		log.Info("user %s send message %s", userConn.userId, data)
 		c.WriteMessage(messageType, data)
 		atomic.AddUint64(&qps, 1)
 	})
@@ -40,14 +53,30 @@ func onWebsocket(w http.ResponseWriter, r *http.Request) {
 	}
 	wsConn := conn.(*websocket.Conn)
 	wsConn.SetReadDeadline(time.Time{})
+
+	query := r.URL.Query()
+	userId := ""
+	if len(query["userId"]) != 0 {
+		userId = query["userId"][0]
+	} else {
+		panic("userId empty")
+	}
+	rwLock.Lock()
+	defer rwLock.Unlock()
+	userConn := &UserConn{0, userId}
+	if connUserMap == nil {
+		connUserMap = make(map[*websocket.Conn]*UserConn)
+	}
+	connUserMap[wsConn] = userConn
 }
 
 func StartWebSocketService() {
+	rwLock = new(sync.RWMutex)
 	rsaCertPEM := helper.ReadBytes("config/cer.pem")
 	rsaKeyPEM := helper.ReadBytes("config/privatekey.pem")
 	cert, err := tls.X509KeyPair(rsaCertPEM, rsaKeyPEM)
 	if err != nil {
-		log.Fatalf("tls.X509KeyPair failed: %v", err)
+		log.Error("tls.X509KeyPair failed: %v", err)
 	}
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{cert},
@@ -56,7 +85,7 @@ func StartWebSocketService() {
 	tlsConfig.BuildNameToCertificate()
 
 	mux := &http.ServeMux{}
-	mux.HandleFunc("/wss", onWebsocket)
+	mux.HandleFunc(viper.GetString("app.websocket.url"), onWebsocket)
 
 	server = nbhttp.NewServer(nbhttp.Config{
 		Network:                 "tcp",

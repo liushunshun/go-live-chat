@@ -1,7 +1,7 @@
 app:
     websocket:
-        port: 65000-65050
-        url: /ws
+        port: 28001-28050
+        url: /wss
     pprof:
         port: 6060
     http:

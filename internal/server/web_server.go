@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	log "github.com/lesismal/nbio/logging"
 	"github.com/spf13/viper"
 )
 
@@ -16,6 +16,6 @@ func StartWebService() {
 	config.InitWebRouters(router)
 
 	if err := http.ListenAndServe(fmt.Sprint(helper.GetServerIp(), ":", viper.GetInt("app.http.port")), router); err != nil {
-		log.Fatalf("web server failed: %v", err)
+		log.Error("web server failed: %v", err)
 	}
 }
